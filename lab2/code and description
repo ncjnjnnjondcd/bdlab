@@ -6,7 +6,6 @@
 
 Зберігає персональні дані відвідувачів клініки.
 | Колонка | Тип даних | Обмеження | Опис |
-| :--- | :--- | :--- | :--- |
 | id | SERIAL | PRIMARY KEY | Унікальний ідентифікатор |
 | first_name | VARCHAR(20) | NOT NULL | Ім'я |
 | second_name | VARCHAR(25) | NOT NULL | Прізвище |
@@ -16,7 +15,6 @@
 
 Містить інформацію про медичний персонал та їхню спеціалізацію.
 | Колонка | Тип даних | Обмеження | Опис |
-| :--- | :--- | :--- | :--- |
 | id | SERIAL | PRIMARY KEY | Унікальний ідентифікатор |
 | specialty | specialization | NOT NULL | Спеціалізація (ENUM) |
 | room | SMALLINT | CHECK (1-299) | Номер кабінету |
@@ -24,7 +22,6 @@
 
 Сполучна таблиця, що реалізує зв'язок "один до багатьох" між лікарями/пацієнтами та фактом прийому.
 | Колонка | Тип даних | Обмеження | Опис |
-| :--- | :--- | :--- | :--- |
 | visit_date | TIMESTAMP | NOT NULL | Дата та час візиту |
 | id_patient | INT | REFERENCES | ID пацієнта |
 | id_doctor | INT | REFERENCES | ID лікаря |
@@ -32,12 +29,12 @@
 
 Зберігає інформацію про призначення, зроблені під час конкретного візиту.
 | Колонка | Тип даних | Обмеження | Опис |
-| :--- | :--- | :--- | :--- |
 | drugs | VARCHAR(50) | - | Назва препарату |
 | drag_dosing | REAL | CHECK (>=0) | Дозування |
 | id_visit | INT | REFERENCES | Зв'язок з візитом |
 
-```sql
+код для створення таблиць:
+
 create table patient(
 	id serial primary key,
 	first_name varchar(20) not null,
@@ -69,4 +66,28 @@ create table prescription(
 	drag_dosing real check (drag_dosing>=0) not null,
 	id_visit int references visit(id) not null
 );
-```
+
+
+
+код для передачі данних:
+insert into patient (first_name, second_name, birth_day, phone_number) values
+('дініс', 'пилов', '2026-04-05','123456789012'),
+('ваня', 'кавун', '2024-05-01','123456789012'),
+('ігор', 'кохан', '2006-09-07','123456789012');
+insert into doctor (first_name, second_name, specialty, room) values
+('валера','коваль','стоматолог',2),
+('валентин','чорний','травматолог',22),
+('валя','кава','педіатр',13);
+insert into visit (visit_date, id_patient, id_doctor)values
+('2026-04-05 14:30:00',1,1),
+('2026-04-06 14:30:00',2,2),
+('2026-04-10 14:30:00',3,2);
+insert into prescription (drugs, drag_dosing, id_visit) values
+('активоване вугілля',40.5,1),
+('біле вугілля',20.0,2),
+('табак',30.9,3);
+
+
+перевірка:
+select * from visit
+
