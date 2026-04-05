@@ -1,1 +1,72 @@
+Структура бази даних
+Для стандартизації спеціалізацій лікарів було створено перелічувальний тип specialization:
+Значення: стоматолог, травматолог, дерматолог, педіатр, окуліст, терапевт, ендокринолог.
+Опис таблиць:
+Таблиця patient (Пацієнти)
 
+Зберігає персональні дані відвідувачів клініки.
+| Колонка | Тип даних | Обмеження | Опис |
+| :--- | :--- | :--- | :--- |
+| id | SERIAL | PRIMARY KEY | Унікальний ідентифікатор |
+| first_name | VARCHAR(20) | NOT NULL | Ім'я |
+| second_name | VARCHAR(25) | NOT NULL | Прізвище |
+| birth_day | DATE | NOT NULL | Дата народження |
+| phone_number | CHAR(12) | NOT NULL | Контактний телефон |
+Таблиця doctor (Лікарі)
+
+Містить інформацію про медичний персонал та їхню спеціалізацію.
+| Колонка | Тип даних | Обмеження | Опис |
+| :--- | :--- | :--- | :--- |
+| id | SERIAL | PRIMARY KEY | Унікальний ідентифікатор |
+| specialty | specialization | NOT NULL | Спеціалізація (ENUM) |
+| room | SMALLINT | CHECK (1-299) | Номер кабінету |
+Таблиця visit (Візити)
+
+Сполучна таблиця, що реалізує зв'язок "один до багатьох" між лікарями/пацієнтами та фактом прийому.
+| Колонка | Тип даних | Обмеження | Опис |
+| :--- | :--- | :--- | :--- |
+| visit_date | TIMESTAMP | NOT NULL | Дата та час візиту |
+| id_patient | INT | REFERENCES | ID пацієнта |
+| id_doctor | INT | REFERENCES | ID лікаря |
+Таблиця prescription (Рецепти)
+
+Зберігає інформацію про призначення, зроблені під час конкретного візиту.
+| Колонка | Тип даних | Обмеження | Опис |
+| :--- | :--- | :--- | :--- |
+| drugs | VARCHAR(50) | - | Назва препарату |
+| drag_dosing | REAL | CHECK (>=0) | Дозування |
+| id_visit | INT | REFERENCES | Зв'язок з візитом |
+
+```sql
+create table patient(
+	id serial primary key,
+	first_name varchar(20) not null,
+	second_name varchar(25) not null,
+	birth_day date not null,
+	phone_number char(12) not null
+	);
+
+create type specialization as enum ('стоматолог','травматолог','дерматолог','педіатр','окуліст','терапевт','ендокринолог');
+create table doctor(
+	id serial primary key,
+	first_name varchar(20) not null,
+	second_name varchar(25) not null,
+    specialty specialization not null,
+	room smallint not null check (room>0 and room<300)
+);
+
+create table visit(
+	id serial primary key,
+	visit_date timestamp not null,
+	id_patient int references patient(id) not null,
+	id_doctor int references doctor(id)
+);
+
+
+create table prescription(
+	id serial primary key,
+	drugs varchar(50) not null,
+	drag_dosing real check (drag_dosing>=0) not null,
+	id_visit int references visit(id) not null
+);
+```
