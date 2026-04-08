@@ -1,1 +1,5 @@
-
+я переробив ER діаграму та код sql, щоб база данних була більш складна, влни знаходятьсмя в папці remadelab1_2
+```sql
+select * from products 
+where retail_price > 1000;
+```
