@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model categories {
+  id_category   Int        @id @default(autoincrement())
+  category_name String     @unique @db.VarChar(100)
+  products      products[]
+}
+
+model clients {
+  id_client  Int     @id @default(autoincrement())
+  first_name String? @db.VarChar(100)
+  last_name  String? @db.VarChar(100)
+  phone      String? @unique @db.VarChar(50)
+  sales      sales[]
+}
+
+model products {
+  id_product     Int          @id @default(autoincrement())
+  product_name   String       @db.VarChar(200)
+  sku            String?      @unique @db.VarChar(100)
+  id_category    Int?
+  purchase_price Decimal?     @db.Decimal(10, 2)
+  retail_price   Decimal?     @db.Decimal(10, 2)
+  id_supplier    Int?
+  categories     categories?  @relation(fields: [id_category], references: [id_category], onDelete: NoAction, onUpdate: NoAction)
+  suppliers      suppliers?   @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
+  sale_items     sale_items[]
+  stock          stock[]
+}
+
+model sale_items {
+  id_sale    Int
+  id_product Int
+  quantity   Int
+  unit_price Decimal? @db.Decimal(10, 2)
+  products   products @relation(fields: [id_product], references: [id_product], onDelete: NoAction, onUpdate: NoAction)
+  sales      sales    @relation(fields: [id_sale], references: [id_sale], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id_sale, id_product])
+}
+
+model sales {
+  id_sale    Int          @id @default(autoincrement())
+  sale_date  DateTime?    @default(now()) @db.Timestamp(6)
+  id_client  Int?
+  sale_items sale_items[]
+  clients    clients?     @relation(fields: [id_client], references: [id_client], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model stock {
+  id_warehouse Int
+  id_product   Int
+  quantity     Int?       @default(0)
+  products     products   @relation(fields: [id_product], references: [id_product], onDelete: NoAction, onUpdate: NoAction)
+  warehouses   warehouses @relation(fields: [id_warehouse], references: [id_warehouse], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id_warehouse, id_product])
+}
+
+model suppliers {
+  id_supplier  Int        @id @default(autoincrement())
+  company_name String     @db.VarChar(255)
+  number        String?    @db.VarChar(50)
+  products     products[]
+}
+
+model warehouses {
+  id_warehouse  Int     @id @default(autoincrement())
+  location_name String  @db.VarChar(255)
+  stock         stock[]
+}
+
+model feedback {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
+  created_at DateTime @default(now())
+}
